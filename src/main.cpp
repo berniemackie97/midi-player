@@ -1,42 +1,42 @@
 // src/main.cpp
-// Tiny orchestration-only entry point.
-// - Parse CLI (MIDI path + optional --sf override)
-// - Read MIDI bytes
-// - Parse to Song (header + events)
-// - Build a tempo map
-// - Pick a SoundFont (root soundfonts/ first; --sf wins)
-// - Print a small preview
-//
-// Implementation details live in modules:
-//   app/cli.hpp              -> app::parse_cli
-//   io/io.hpp                -> io::read_all
-//   midi/smf.hpp             -> midi::parse_smf
-//   midi/tempo.hpp           -> midi::TempoMap, midi::build_tempo_map
-//   assets/sf_resolver.hpp   -> assets::select_soundfont
-//   app/preview.hpp          -> app::print_preview
+// Tiny orchestration: CLI → load bytes → parse → tempo map → choose SF2 →
+// preview → play.
+
+#include <filesystem>
+#include <iostream>
 
 #include "app/cli.hpp"
 #include "app/preview.hpp"
 #include "assets/sf_resolver.hpp"
+#include "audio/player.hpp"
 #include "io/io.hpp"
 #include "midi/smf.hpp"
 #include "midi/tempo.hpp"
 
-#include <iostream>
-
 int main(int argc, char **argv) {
   try {
+    // 1) Parse CLI (MIDI path + optional --sf <name>)
     app::Cli cli = app::parse_cli(argc, argv);
 
-    auto midiBytes = io::read_all(cli.midiPath);
-    midi::Song song = midi::parse_smf(midiBytes);       // header + events
-    midi::TempoMap tempo = midi::build_tempo_map(song); // normalized timing
+    // 2) Load file
+    const auto bytes = io::read_all(cli.midiPath.string());
 
-    auto sf = assets::select_soundfont(cli.sfOverride, argv[0]);
-    std::cout << "SoundFont: " << sf.string() << "\n";
+    // 3) Parse MIDI and build tempo map
+    midi::Song song = midi::parse_smf(bytes);
+    midi::TempoMap tempo = midi::build_tempo_map(song);
 
-    app::print_preview(song, tempo); // small header + first 10 notes
-    // later: player::play(song, tempo, sf);
+    // 4) Resolve SoundFont from ./soundfonts/ (default =
+    // Sonatina_Symphonic_Orchestra.sf2) NOTE: Pass argv[0] so the resolver can
+    // compute the executable directory if needed.
+    std::filesystem::path sf =
+        assets::select_soundfont(cli.sfOverride, argv[0]);
+    std::cout << "SoundFont: " << sf.string() << "\n\n";
+
+    // 5) Quick text preview (header + first 10 note events)
+    app::print_preview(song, tempo);
+
+    // 6) Make it sing (blocking until the song finishes)
+    audio::play(song, tempo, sf);
 
     return 0;
   } catch (const std::exception &ex) {
