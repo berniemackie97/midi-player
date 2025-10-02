@@ -1,0 +1,72 @@
+# --- OS junk ---
+.DS_Store
+._*
+Thumbs.db
+
+# --- Editors/IDEs ---
+.vscode/
+.idea/
+*.iml
+
+# --- CMake / build trees ---
+/build/
+/build-*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+Makefile
+install_manifest.txt
+
+# --- Compiler outputs ---
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.d
+*.gch
+*.pch
+
+# --- Xcode (if it ever shows up) ---
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+*.dSYM/
+
+# --- Logs / caches ---
+*.log
+.cache/
+
+# --- Coverage & profiling ---
+*.gcno
+*.gcda
+*.gcov
+*.profraw
+*.profdata
+
+# --- Crash dumps ---
+core
+*.core
+*.dmp
+
+# --- Local config ---
+*.env
+*.local
+
+# --- Large binary assets (soundfonts) ---
+# Keep soundfonts out of the repo by default; remove these lines if you want to commit them.
+*.sf2
+*.sf3
+soundfonts/
+assets/
+

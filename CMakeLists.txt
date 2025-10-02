@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.20)
+project(midi_player CXX)
+set(CMAKE_CXX_STANDARD 20)
+add_executable(midi_player src/main.cpp)
+target_include_directories(midi_player PRIVATE thirdparty)
